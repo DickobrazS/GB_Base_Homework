@@ -70,6 +70,8 @@ enum Status: String{
 
 //MARK: Protocols and Extensions
 
+
+
 protocol Car {
     var carName: String { get set }
     var carColor: Color { get set }
@@ -79,36 +81,42 @@ protocol Car {
     var trunkStatus: Status { get set }
     var centralLock: Status { get set }
     var horsePower: Int { get set }
+    var windowsStatus: Status { get set }
 
     func printFullInformation()
-    func openDoors (_ doorStatus: Status)
+    mutating func statusEngine (engineStatus: EngineStatus)
+    mutating func statusCentralLock (centralLock: Status)
 }
 
 
 extension Car {
     
-//    mutating func openDoors (_ doorStatus: Status) -> Status {
-//        print ("Двери !!!!!!!открылись")
-//        var doorStatus: Status = doorStatus
-//        doorStatus = .opened
-//        return doorStatus
-//    }
     
     
     
    mutating func statusEngine (engineStatus: EngineStatus) {
         self.engineStatus = engineStatus
         switch engineStatus{
-        case.turnedOff: print ("Теперь двигатель выключен")
-        case.works: print ("Теперь двигатель включен")
+        case.turnedOff: print ("Теперь \(engineStatus.rawValue)")
+        case.works: print ("Теперь \(engineStatus.rawValue)")
         }
     }
-//    
-//    mutating func openCentralLock () {
-//        return centralLock = .opened
-//        print ("Центральный замок открыт")
-//    }
     
+    mutating func statusCentralLock (centralLock: Status) {
+        self.centralLock = centralLock
+        switch centralLock {
+        case.closed: print ("Центральный замок \(centralLock.rawValue)")
+        case.opened: print ("Центральный замок \(centralLock.rawValue)")
+        }
+    }
+    
+    mutating func statusWindows (windowsStatus: Status) {
+        self.windowsStatus = windowsStatus
+        switch windowsStatus {
+        case .closed: print ("Теперь окна \(windowsStatus.rawValue)ы")
+        case.opened: print ("Теперь окна \(windowsStatus.rawValue)ы")
+        }
+    }
     
     
     func printFullInformation() {
@@ -119,11 +127,11 @@ extension Car {
         Цвет машины: \(carColor.rawValue)
         В машине \(trunk.rawValue)
         Статус двигателя: \(engineStatus.rawValue)
+        Окна \(windowsStatus.rawValue)ы
         Замок дверей: \(doorsStatus.rawValue)
         Замок багажника: \(trunkStatus.rawValue)
         Центральный замок: \(centralLock.rawValue)
-        
-        """)
+""")
     }
 }
 
@@ -132,12 +140,6 @@ extension Car {
 
 final class SportCar: Car, CustomStringConvertible {
     
-    func openDoors(_ doorStatus: Status) {
-        print ("gbplf")
-    }
-    
-
-
 
     var carName: String
     var typeOfSportCar: TypeOfSportCar
@@ -150,13 +152,13 @@ final class SportCar: Car, CustomStringConvertible {
     var engineStatus: EngineStatus
     var doorsStatus: Status
     var trunkStatus: Status
+    var windowsStatus: Status
     var centralLock: Status
     var horsePower: Int
     
     var description: String {
         return ("""
-Краткая информация по машине
-Название машины: \(carName)
+Краткая информация по спорткару \(carName):
 Цвет машины: \(carColor.rawValue)
 Статус двигателя: \(engineStatus.rawValue)
 
@@ -176,6 +178,7 @@ final class SportCar: Car, CustomStringConvertible {
          engineStatus: EngineStatus,
          doorsStatus: Status,
          trunkStatus: Status,
+         windowsStatus: Status,
          centralLock: Status,
          horsePower: Int)
     {
@@ -190,6 +193,7 @@ final class SportCar: Car, CustomStringConvertible {
         self.engineStatus = engineStatus
         self.doorsStatus = doorsStatus
         self.trunkStatus = trunkStatus
+        self.windowsStatus = windowsStatus
         self.centralLock = centralLock
         self.horsePower = horsePower
     }
@@ -197,12 +201,100 @@ final class SportCar: Car, CustomStringConvertible {
 }
 
 
-var firstSportCar: SportCar = .init(carName: "C63 AMG", typeOfSportCar: .sportCar, EngineLocation: .forward, nitro: .no, doorsType: .standart, transmission: .auto, carColor: .black, trunk: .available, engineStatus: .works, doorsStatus: .closed, trunkStatus: .closed, centralLock: .opened, horsePower: 349)
+
+final class TrunkCar: Car, CustomStringConvertible {
+    var carName: String
+    var carColor: Color
+    var trunk: Trunk = .available
+    var trunkType: TrunkType
+    var trunkVolume: Int
+    var filledTrunkVolume: Int {
+        willSet {
+            print ("Теперь в машине \(carName) загружено \(newValue) литров. Осталось свободно \(trunkVolume - newValue)")
+        }
+    }
+    var engineStatus: EngineStatus
+    var doorsStatus: Status
+    var trunkStatus: Status
+    var centralLock: Status
+    var horsePower: Int
+    var windowsStatus: Status
+    var description: String {
+        return ("""
+Краткая информация по грузовику \(carName):
+Цвет грузовика \(carColor)
+Тип: \(trunkType)
+Статус двигателя \(engineStatus)
+
+Если вам нужна полная информация, вызовите функцию printFullInformation
+
+""")
+    }
+    
+    
+    
+    func printFullTrunkInformation() {
+        printFullInformation()
+        print ("""
+        Тип грузовика: \(trunkType)
+        Объем багажного отделения: \(trunkVolume)
+        Объем занятого багажного отделения: \(filledTrunkVolume)
+        Объем совбодного багажного отделения: \(trunkVolume - filledTrunkVolume)
+""")
+        
+    }
+    
+    
+    init(carName: String,
+         carColor: Color,
+         trunk: Trunk,
+         trunkType: TrunkType,
+         trunkVolume: Int,
+         filledTrunkVolume: Int,
+         engineStatus: EngineStatus,
+         doorsStatus: Status,
+         trunkStatus: Status,
+         centralLock: Status,
+         horsePower: Int,
+         windowsStatus: Status)
+    {
+        self.carName = carName
+        self.carColor = carColor
+        self.trunk = trunk
+        self.trunkType = trunkType
+        self.trunkVolume = trunkVolume
+        self.filledTrunkVolume = filledTrunkVolume
+        self.engineStatus = engineStatus
+        self.trunkStatus = trunkStatus
+        self.doorsStatus = doorsStatus
+        self.trunkStatus = trunkStatus
+        self.centralLock = centralLock
+        self.horsePower = horsePower
+        self.windowsStatus = windowsStatus
+    }
+    
+    
+}
+
+//MARK: Implementation
+
+
+var firstSportCar: SportCar = .init(carName: "C63 AMG", typeOfSportCar: .sportCar, EngineLocation: .forward, nitro: .no, doorsType: .standart, transmission: .auto, carColor: .black, trunk: .available, engineStatus: .works, doorsStatus: .closed, trunkStatus: .closed, windowsStatus: .closed, centralLock: .opened, horsePower: 349)
+
 print(firstSportCar)
 
 firstSportCar.statusEngine(engineStatus: .works)
+firstSportCar.statusCentralLock(centralLock: .closed)
+firstSportCar.statusWindows(windowsStatus: .opened)
+
 
 firstSportCar.printFullInformation()
+
+var firstTrunkCar: TrunkCar = .init(carName: "Volvo", carColor: .black, trunk: .available, trunkType: .lorry, trunkVolume: 1500, filledTrunkVolume: 600, engineStatus: .turnedOff, doorsStatus: .closed, trunkStatus: .closed, centralLock: .closed, horsePower: 500, windowsStatus: .closed)
+
+firstTrunkCar.printFullTrunkInformation()
+
+firstTrunkCar.filledTrunkVolume = 980
 
 
  
