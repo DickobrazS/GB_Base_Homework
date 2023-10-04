@@ -81,29 +81,39 @@ protocol Car {
     var horsePower: Int { get set }
 
     func printFullInformation()
-    func OpenDoors()
+    func openDoors (_ doorStatus: Status)
 }
 
 
 extension Car {
     
-    mutating func openDoors () {
-        return doorsStatus = .opened
-        print ("Двери открылись")
-    }
+//    mutating func openDoors (_ doorStatus: Status) -> Status {
+//        print ("Двери !!!!!!!открылись")
+//        var doorStatus: Status = doorStatus
+//        doorStatus = .opened
+//        return doorStatus
+//    }
     
-    mutating func startEngine () {
-        return engineStatus = .works
-        print ("Двигатель запущен")
-    }
     
-    mutating func openCentralLock () {
-        return centralLock = .opened
-        print ("Центральный замок открыт")
+    
+   mutating func statusEngine (engineStatus: EngineStatus) {
+        self.engineStatus = engineStatus
+        switch engineStatus{
+        case.turnedOff: print ("Теперь двигатель выключен")
+        case.works: print ("Теперь двигатель включен")
+        }
     }
+//    
+//    mutating func openCentralLock () {
+//        return centralLock = .opened
+//        print ("Центральный замок открыт")
+//    }
+    
+    
     
     func printFullInformation() {
         print ("""
+        
         Название машины: \(carName)
         Количество лошадинных сил: \(horsePower)
         Цвет машины: \(carColor.rawValue)
@@ -120,19 +130,21 @@ extension Car {
 
 //MARK: Classes
 
-final class SportCar: Car {
-    func OpenDoors() {
-        <#code#>
+final class SportCar: Car, CustomStringConvertible {
+    
+    func openDoors(_ doorStatus: Status) {
+        print ("gbplf")
     }
     
-    
+
+
+
     var carName: String
     var typeOfSportCar: TypeOfSportCar
     var EngineLocation: EngineLocation
     var nitro: Nitro
     var doorsType: DoorsType
     var transmission: Transmission
-    
     var carColor: Color
     var trunk: Trunk
     var engineStatus: EngineStatus
@@ -141,7 +153,17 @@ final class SportCar: Car {
     var centralLock: Status
     var horsePower: Int
     
-    
+    var description: String {
+        return ("""
+Краткая информация по машине
+Название машины: \(carName)
+Цвет машины: \(carColor.rawValue)
+Статус двигателя: \(engineStatus.rawValue)
+
+Если вам нужна полная информация, вызовите функцию printFullInformation
+
+""")
+    }
     
     init(carName: String,
          typeOfSportCar: TypeOfSportCar,
@@ -176,7 +198,9 @@ final class SportCar: Car {
 
 
 var firstSportCar: SportCar = .init(carName: "C63 AMG", typeOfSportCar: .sportCar, EngineLocation: .forward, nitro: .no, doorsType: .standart, transmission: .auto, carColor: .black, trunk: .available, engineStatus: .works, doorsStatus: .closed, trunkStatus: .closed, centralLock: .opened, horsePower: 349)
+print(firstSportCar)
 
+firstSportCar.statusEngine(engineStatus: .works)
 
 firstSportCar.printFullInformation()
 
